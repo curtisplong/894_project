@@ -1,0 +1,131 @@
+# Goal for today is to get data in usable form!
+
+from keras.preprocessing.image import ImageDataGenerator
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+from keras.models import Sequential
+from keras.layers import Dense, Conv2D, MaxPooling2D, Flatten, Activation, Dropout, AveragePooling2D
+from keras.optimizers import SGD
+from scipy.misc import imresize
+
+def plot_hist(h, xsize=3, ysize=3):
+    # Prepare plotting
+    fig_size = plt.rcParams["figure.figsize"]
+    plt.rcParams["figure.figsize"] = [xsize, ysize]
+    fig, axes = plt.subplots(nrows=4, ncols=4, sharex=True)
+
+   #  summarize history for MSE
+    plt.subplot(211)
+    plt.plot(h['acc'])
+    plt.plot(h['val_acc'])
+    plt.title('Training vs Validation MSE using Scaled Data')
+    plt.ylabel('MSE')
+    plt.xlabel('Epoch')
+    plt.legend(['Train', 'Validation'], loc='upper left')
+
+    # summarize history for loss
+    plt.subplot(212)
+    plt.plot(h['loss'])
+    plt.plot(h['val_loss'])
+    plt.title('Training vs Validation Loss using Scaled Data')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(['Train', 'Validation'], loc='upper left')
+
+    # Plot it all in IPython (non-interactive)
+    plt.draw()
+    plt.show()
+
+    return
+
+train_data_dir = 'TRAIN'
+test_data_dir = 'TEST'
+
+img_width = 160
+img_height = 120
+
+train_datagen = ImageDataGenerator(rescale=1. / 255)
+
+train_generator = train_datagen.flow_from_directory(
+    directory=train_data_dir,
+    target_size=(img_height, img_width),
+    color_mode="rgb",
+    batch_size=16,
+    class_mode="categorical",
+    shuffle=True,
+    seed=42
+)
+
+test_datagen = ImageDataGenerator(rescale=1. / 255)
+
+test_generator = test_datagen.flow_from_directory(
+    directory=test_data_dir,
+    target_size=(img_height, img_width),
+    color_mode="rgb",
+    batch_size=16,
+    class_mode="categorical",
+    shuffle=True,
+    seed=42
+)
+
+#Now let's build the model... fun part!
+
+#Keep simple for now.
+
+model = Sequential()
+
+model.add(Conv2D(32,(3,3), input_shape=(img_height, img_width,3)))
+model.add(Activation('relu'))
+
+model.add(Dropout(0.05))
+
+model.add(MaxPooling2D(pool_size=(2,2)))
+
+#model.add(AveragePooling2D(pool_size=(2,2)))
+
+
+
+model.add(Conv2D(64,(3,3)))
+model.add(Activation('relu'))
+
+#model.add(MaxPooling2D(pool_size=(2,2)))
+
+#model.add(Conv2D(16,(3,3)))
+#model.add(Activation('relu'))
+
+model.add(MaxPooling2D(pool_size=(3,3)))
+
+
+model.add(Flatten())
+
+model.add(Dense(64))
+model.add(Activation('relu'))
+
+model.add(Dropout(0.05))
+
+model.add(Dense(4))
+model.add(Activation('softmax'))
+
+
+model.compile(loss='categorical_crossentropy', optimizer='rmsprop',
+              metrics=['accuracy'])
+
+
+historyAll = model.fit_generator(
+    train_generator,
+    steps_per_epoch=150 // 16,   #batch size?
+    epochs=50,
+    validation_data=test_generator,
+    validation_steps=100 // 16
+)
+
+
+
+model.summary()
+
+model.save_weights('first_try_augmented.h5')
+
+
+#Plot Testing and Validation MSE and Loss
+plot_hist(historyAll.history, xsize=8, ysize=12)
