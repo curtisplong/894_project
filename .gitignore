@@ -1,3 +1,4 @@
 dataset-master
 dataset2-master
 *.swp
+__pycache__
