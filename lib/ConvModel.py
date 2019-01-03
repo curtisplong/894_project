@@ -104,15 +104,8 @@ class ConvModel(object):
         )
 
         #Plot Testing and Validation MSE and Loss
-        plt.figure()
-        utils.plot_val_loss(self.hist.history)
-        plt.savefig(self.name + "-val_loss.png")
-        plt.close()
-
-        plt.figure()
-        utils.plot_val_acc(self.hist.history)
-        plt.savefig(self.name + "-val_acc.png")
-        plt.close()
+        utils.plot_val_loss(self.hist.history, filename=self.name + "-val_loss.png")
+        utils.plot_val_acc(self.hist.history, filename=self.name + "-val_acc.png")
 
 
     def test(self):

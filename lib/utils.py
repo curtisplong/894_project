@@ -16,14 +16,14 @@ from sklearn.metrics import confusion_matrix
 from sklearn.utils.class_weight import compute_class_weight 
 
 
-def plot_val_acc(h):
+def plot_val_acc(h, filename='default-val_acc.png'):
     # Prepare plotting
     #fig_size = plt.rcParams["figure.figsize"]
     #plt.rcParams["figure.figsize"] = [xsize, ysize]
     #fig, axes = plt.subplots(nrows=4, ncols=4, sharex=True)
 
    #  summarize history for accuracy
-    #plt.subplot(211)
+    plt.figure()
     plt.plot(h['acc'])
     plt.plot(h['val_acc'])
     plt.title('Training vs Validation MSE using Scaled Data')
@@ -32,11 +32,13 @@ def plot_val_acc(h):
     plt.legend(['Train', 'Validation'], loc='upper left')
 
     plt.draw()
+    plt.savefig(filename)
+    plt.close()
 
 
-def plot_val_loss(h):
+def plot_val_loss(h, filename='default-val_loss.png'):
     # summarize history for loss
-    #plt.subplot(212)
+    plt.figure()
     plt.plot(h['loss'])
     plt.plot(h['val_loss'])
     plt.title('Training vs Validation Loss using Scaled Data')
@@ -46,7 +48,7 @@ def plot_val_loss(h):
 
     # Plot it all in IPython (non-interactive)
     plt.draw()
-    plt.savefig("val_loss.png")
+    plt.savefig(filename)
     plt.close()
 
 
