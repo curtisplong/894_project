@@ -26,45 +26,36 @@ from lib import utils
 
 
 class ConvModel(object):
-    convolutions = [128, 64, 64]
-    mlp = [200, 50]
+    convolutions = [32, 64]
+    pooling = [0, 2]
+    mlp = [100]
     name = "AnonymousModel"
-    epochs = 75
+    epochs = 30
     optimizer = 'adam'
     activation = 'relu'
+    dropout = 0.25
 
-    def __init__(self, data, c, m, b, name, epochs = 75, optimizer = 'adam', activation = 'relu'):
+    def __init__(self, data, convolutions = [32, 64], pooling = [0,2], mlp = [100], batch = 8, name = 'default', epochs = 30, optimizer = 'adam', activation = 'relu', dropout = 0.25):
         self.ds = data 
-        self.convolutions = c
-        self.mlp = m
-        self.batch_size = b
+        self.convolutions = convolutions
+        self.mlp = mlp
+        self.batch_size = batch
         self.name = name
         self.epochs = epochs 
         self.optimizer = optimizer
         self.activation = activation
+        self.dropout = dropout 
 
         self.train_gen = ImageDataGenerator(rescale = 1. / 255,
-                                            featurewise_center=True, 
-                                            featurewise_std_normalization=True, 
                                             horizontal_flip=True, 
                                             rotation_range=20, 
                                             vertical_flip = True )
         self.train_gen.fit(self.ds.X_train)
 
-        self.val_gen = ImageDataGenerator(rescale = 1. / 255,
-                                          featurewise_center=True, 
-                                          featurewise_std_normalization=True, 
-                                          horizontal_flip=True, 
-                                          rotation_range=20, 
-                                          vertical_flip = True)
+        self.val_gen = ImageDataGenerator(rescale = 1. / 255 )
         self.val_gen.fit(self.ds.X_val)
 
-        self.test_gen = ImageDataGenerator(rescale = 1. / 255,
-                                           featurewise_center=True, 
-                                           featurewise_std_normalization=True, 
-                                           horizontal_flip=True, 
-                                           rotation_range=20, 
-                                           vertical_flip = True)
+        self.test_gen = ImageDataGenerator(rescale = 1. / 255 )
         self.test_gen.fit(self.ds.X_test)
 
         self.train_generator = self.train_gen.flow(np.array(self.ds.X_train), self.ds.y_train, batch_size=self.batch_size) 
@@ -76,15 +67,18 @@ class ConvModel(object):
     def build(self):
         # Model Building
         self.model = Sequential()
-        for x in self.convolutions:
-            self.model.add(Conv2D(x, activation=self.activation, kernel_size=3,
+        for i,j in enumerate(self.convolutions):
+            self.model.add(Conv2D(j, activation=self.activation, kernel_size=3,
                          input_shape=(self.ds.img_height, self.ds.img_width, 3), padding='same', kernel_initializer='TruncatedNormal', bias_initializer='zeros'))
-            self.model.add(MaxPooling2D(pool_size=(2,2)))
+            # if pooling specified for this layer
+            if self.pooling[i]:
+                self.model.add(MaxPooling2D(pool_size=(self.pooling[i],self.pooling[i])))
 
         self.model.add(Flatten())
         for y in self.mlp:
             self.model.add(Dense(y, activation=self.activation, kernel_initializer='TruncatedNormal', bias_initializer='zeros'))
 
+        self.model.add(Dropout(self.dropout))
         self.model.add(Dense(4, activation='softmax'))
 
         weightsfile = self.name + '-best.hdf5'

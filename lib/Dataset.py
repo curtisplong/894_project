@@ -25,7 +25,7 @@ from keras.callbacks import ModelCheckpoint
 class Dataset(object):
     imagedir = "dataset-master/JPEGImages/"
     labelsfile = "dataset-master/labels.csv"
-    img_width = 160 
+    img_width = 160
     img_height = 120
     categories = []
     labels = pd.DataFrame()

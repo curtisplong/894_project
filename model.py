@@ -21,23 +21,23 @@ pd.set_option('display.max_colwidth', -1)
 md = Dataset()
 md.stats()
 
-m = ConvModel(data = md, c = [64,32], m = [100,20], b = 8, name="conv64-20", epochs=1)
+m = ConvModel(data = md, convolutions = [64,32], mlp = [100], batch = 8, name="conv64", epochs=5)
 if args.train:
     m.train()
 else:
     m.test()
 keras.backend.clear_session()
 
-m = ConvModel(data = md, c = [128,64,32], m = [100,20], b = 8, name="conv128-20", epochs=1)
-if args.train:
-    m.train()
-else:
-    m.test()
-keras.backend.clear_session()
+#m = ConvModel(data = md, c = [128,64,32], m = [100,20], b = 8, name="conv128-20", epochs=30)
+#if args.train:
+#    m.train()
+#else:
+#    m.test()
+#keras.backend.clear_session()
 
-m = ConvModel(data = md, c = [256,128,64], m = [100,20], b = 8, name="conv256-20", epochs=1)
-if args.train:
-    m.train()
-else:
-    m.test()
-keras.backend.clear_session()
+#m = ConvModel(data = md, c = [256,128,64], m = [100,20], b = 8, name="conv256-20", epochs=30)
+#if args.train:
+#    m.train()
+#else:
+#    m.test()
+#keras.backend.clear_session()
