@@ -30,7 +30,7 @@ class Dataset(object):
     categories = []
     labels = pd.DataFrame()
 
-    def __init__(self):
+    def __init__(self, img_width=160, img_height=120):
         self.labels = pd.read_csv(self.labelsfile)
         self.labels = self.labels.loc[:, ['Image', 'Category']]
         self.labels['Image'] = pd.to_numeric(self.labels['Image'])
