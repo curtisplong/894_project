@@ -166,15 +166,15 @@ print(model.summary())
 # Checkpoint to save optimal weights
 checkpoint = ModelCheckpoint(filepath = "weights/second_try.h5", monitor='val_loss', verbose=1, save_best_only=True, mode='auto')
 
-historyAll = model.fit_generator(
-    train_generator, 
-    validation_data=validation_generator,
-    steps_per_epoch=len(X_train) // 8,
-    validation_steps=len(X_test) // 8,
-    epochs=500,
-    class_weight = [1.5, 2.0, 0.5, 2.0],
-    callbacks = [checkpoint]
-)
+#historyAll = model.fit_generator(
+#    train_generator, 
+#    validation_data=validation_generator,
+#    steps_per_epoch=len(X_train) // 8,
+#    validation_steps=len(X_test) // 8,
+#    epochs=1,
+#    class_weight = [1.5, 2.0, 0.5, 2.0],
+#    callbacks = [checkpoint]
+#)
 
 # load the optimal weights before testing
 model.load_weights("weights/second_try.h5")
@@ -183,7 +183,7 @@ model.load_weights("weights/second_try.h5")
 
 
 #Plot Testing and Validation MSE and Loss
-plot_hist(historyAll.history, xsize=8, ysize=12)
+#plot_hist(historyAll.history, xsize=8, ysize=12)
 
 # Plot Confusion Matrix
 categories = ['Category_EOSINOPHIL', 'Category_LYMPHOCYTE', 'Category_MONOCYTE', 'Category_NEUTROPHIL']
