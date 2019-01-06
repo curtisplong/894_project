@@ -45,10 +45,11 @@ class ConvModel(object):
         self.optimizer = optimizer
         self.activation = activation
         self.dropout = dropout 
+        self.pooling = pooling
 
         self.train_gen = ImageDataGenerator(rescale = 1. / 255,
                                             horizontal_flip=True, 
-                                            rotation_range=20, 
+                                            rotation_range=90, 
                                             vertical_flip = True )
         self.train_gen.fit(self.ds.X_train)
 
