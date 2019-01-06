@@ -164,7 +164,7 @@ model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['ac
 print(model.summary())
 
 # Checkpoint to save optimal weights
-checkpoint = ModelCheckpoint(filepath = "weights/second_try.h5", monitor='val_loss', verbose=1, save_best_only=True, mode='auto')
+checkpoint = ModelCheckpoint(filepath = "weights/third_try.h5", monitor='val_acc', verbose=1, save_best_only=True, mode='auto')
 
 historyAll = model.fit_generator(
     train_generator, 
@@ -177,7 +177,7 @@ historyAll = model.fit_generator(
 )
 
 # load the optimal weights before testing
-model.load_weights("weights/second_try.h5")
+model.load_weights("weights/third_try.h5")
 
 #print(model.evaluate(X_test, y_test))
 
