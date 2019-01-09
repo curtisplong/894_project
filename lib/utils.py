@@ -16,7 +16,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.utils.class_weight import compute_class_weight 
 
 
-def plot_val_acc(h, filename='default-val_acc.png'):
+def plot_val_acc(h, filename='results/default-val_acc.png'):
     # Prepare plotting
     #fig_size = plt.rcParams["figure.figsize"]
     #plt.rcParams["figure.figsize"] = [xsize, ysize]
@@ -36,7 +36,7 @@ def plot_val_acc(h, filename='default-val_acc.png'):
     plt.close()
 
 
-def plot_val_loss(h, filename='default-val_loss.png'):
+def plot_val_loss(h, filename='results/default-val_loss.png'):
     # summarize history for loss
     plt.figure()
     plt.plot(h['loss'])

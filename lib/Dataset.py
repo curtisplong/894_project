@@ -29,8 +29,9 @@ class Dataset(object):
     img_height = 120
     categories = []
     labels = pd.DataFrame()
+    batch_size = 8
 
-    def __init__(self, img_width=160, img_height=120):
+    def __init__(self, img_width=160, img_height=120, batch_size=8):
         self.labels = pd.read_csv(self.labelsfile)
         self.labels = self.labels.loc[:, ['Image', 'Category']]
         self.labels['Image'] = pd.to_numeric(self.labels['Image'])
@@ -39,6 +40,7 @@ class Dataset(object):
         self.labels = self.labels[~self.labels.Category.str.contains("BASOPHIL")]
         self.class_weight = compute_class_weight('balanced', np.unique(self.labels['Category']), self.labels['Category']) 
         self.labels = pd.get_dummies(self.labels, columns=['Category'])
+        self.batch_size = batch_size
         #print(class_weight)
 
         self.labels['filename'] = self.labels.Image.apply(lambda x: self.imagedir + "BloodImage_" + str(x).zfill(5) + ".jpg")
@@ -67,6 +69,22 @@ class Dataset(object):
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.images, self.y, test_size=0.2, stratify=self.y, random_state=159)
         #print(str(X_split.shape) + ', ' + str(y_split.shape))
         self.X_train, self.X_val, self.y_train, self.y_val = train_test_split(self.X_train, self.y_train, test_size=0.25, stratify=self.y_train, random_state=159)
+
+        self.train_gen = ImageDataGenerator(rescale = 1. / 255,
+                                            horizontal_flip=True, 
+                                            rotation_range=90, 
+                                            vertical_flip = True )
+        self.train_gen.fit(self.X_train)
+
+        self.val_gen = ImageDataGenerator(rescale = 1. / 255 )
+        self.val_gen.fit(self.X_val)
+
+        self.test_gen = ImageDataGenerator(rescale = 1. / 255 )
+        self.test_gen.fit(self.X_test)
+
+        self.train_generator = self.train_gen.flow(np.array(self.X_train), self.y_train, batch_size=self.batch_size) 
+        self.validation_generator = self.val_gen.flow(np.array(self.X_val), self.y_val, batch_size=self.batch_size)
+        self.test_generator = self.test_gen.flow(np.array(self.X_test), self.y_test, batch_size=1)
 
 
     def stats(self):

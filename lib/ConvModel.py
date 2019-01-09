@@ -47,21 +47,11 @@ class ConvModel(object):
         self.dropout = dropout 
         self.pooling = pooling
 
-        self.train_gen = ImageDataGenerator(rescale = 1. / 255,
-                                            horizontal_flip=True, 
-                                            rotation_range=90, 
-                                            vertical_flip = True )
-        self.train_gen.fit(self.ds.X_train)
+        # for backwards compat
+        self.train_generator = self.ds.train_generator
+        self.validation_generator = self.ds.validation_generator
+        self.test_generator = self.ds.test_generator
 
-        self.val_gen = ImageDataGenerator(rescale = 1. / 255 )
-        self.val_gen.fit(self.ds.X_val)
-
-        self.test_gen = ImageDataGenerator(rescale = 1. / 255 )
-        self.test_gen.fit(self.ds.X_test)
-
-        self.train_generator = self.train_gen.flow(np.array(self.ds.X_train), self.ds.y_train, batch_size=self.batch_size) 
-        self.validation_generator = self.val_gen.flow(np.array(self.ds.X_val), self.ds.y_val, batch_size=self.batch_size)
-        self.test_generator = self.test_gen.flow(np.array(self.ds.X_test), self.ds.y_test, batch_size=1)
         self.build()
 
 
@@ -93,10 +83,10 @@ class ConvModel(object):
 
 
     def train(self):
-        self.checkpoint = ModelCheckpoint(filepath = self.name + "-best.hdf5", monitor='val_loss', verbose=1, save_best_only=True, mode='auto')
+        self.checkpoint = ModelCheckpoint(filepath = os.path.join("weights", self.name + "-best.hdf5"), monitor='val_loss', verbose=1, save_best_only=True, mode='auto')
         self.hist = self.model.fit_generator(
-            self.train_generator, 
-            validation_data=self.validation_generator,
+            self.ds.train_generator, 
+            validation_data=self.ds.validation_generator,
             steps_per_epoch=len(self.ds.X_train) // self.batch_size,
             validation_steps=len(self.ds.X_val) // self.batch_size,
             epochs=self.epochs,
@@ -105,12 +95,12 @@ class ConvModel(object):
         )
 
         #Plot Testing and Validation MSE and Loss
-        utils.plot_val_loss(self.hist.history, filename=self.name + "-val_loss.png")
-        utils.plot_val_acc(self.hist.history, filename=self.name + "-val_acc.png")
+        utils.plot_val_loss(self.hist.history, filename=os.path.join("results", self.name + "-val_loss.png"))
+        utils.plot_val_acc(self.hist.history, filename=os.path.join("results", self.name + "-val_acc.png"))
 
 
     def test(self):
-        y_pred = self.model.predict_generator(self.test_generator, steps = len(self.ds.X_test))
+        y_pred = self.model.predict_generator(self.ds.test_generator, steps = len(self.ds.X_test))
         #y_pred = self.model.predict(self.ds.X_test)
         # Compute confusion matrix
         cnf_matrix = confusion_matrix(self.ds.y_test.argmax(axis=1), y_pred.argmax(axis=1))
@@ -119,7 +109,7 @@ class ConvModel(object):
         # Plot non-normalized confusion matrix
         utils.plot_confusion_matrix(cnf_matrix, classes=self.ds.categories,
                               title='Confusion matrix, without normalization')
-        plt.savefig(self.name + "-confusion.png")
+        plt.savefig(os.path.join("results", self.name + "-confusion.png"))
         plt.close()
 
         #self.model.save_weights('curtis300.h5')
