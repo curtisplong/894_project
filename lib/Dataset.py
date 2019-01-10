@@ -8,6 +8,8 @@ import argparse
 
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from scipy.misc import imresize 
@@ -50,7 +52,7 @@ class Dataset(object):
         # Load and resize self.images
         self.images = []
         for x in self.labels['filename']:
-            img = imageio.imread(x, as_gray = False)
+            img = imageio.imread(x)
             img = imresize(img, (self.img_height,self.img_width))
             self.images.append(img)
 
